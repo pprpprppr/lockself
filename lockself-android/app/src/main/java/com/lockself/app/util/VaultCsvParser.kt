@@ -23,7 +23,7 @@ import java.io.BufferedReader
 import java.io.StringReader
 import java.util.UUID
 
-object BlackBerryCsvParser {
+object VaultCsvParser {
 
     val HEADERS = listOf(
         "url", "username", "password", "extra", "name", "grouping", "fav",
@@ -511,3 +511,6 @@ object BlackBerryCsvParser {
         }
     }
 }
+
+typealias BlackBerryCsvParser = VaultCsvParser
+

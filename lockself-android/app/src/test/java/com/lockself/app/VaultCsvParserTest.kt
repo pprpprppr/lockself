@@ -13,7 +13,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class BlackBerryCsvParserTest {
+class VaultCsvParserTest {
 
     @Test
     fun testParseStandardBlackBerryCsv() {

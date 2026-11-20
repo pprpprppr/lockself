@@ -1,6 +1,6 @@
 # LockSelf
 
-> A privacy-first, offline native Android password manager and faithful clean-room reconstruction of the legendary BlackBerry Password Keeper experience, built with Kotlin and Jetpack Compose.
+> A privacy-first, offline native Android password manager, built with Kotlin and Jetpack Compose.
 
 ---
 
@@ -8,13 +8,13 @@
 
 - **100% Offline & Private**: Zero external network permissions (`android.permission.INTERNET` omitted). Zero analytics, telemetry, or cloud tracking.
 - **Hardware-Backed Encryption**: Vault records encrypted using AES-GCM-256 with keys derived via PBKDF2-HMAC-SHA256 (100,000 iterations) and Android Keystore hardware-backed biometric authentication.
-- **BlackBerry Password Keeper Parity**:
-  - **Category Visual Accents**: Signature 5dp vertical color strips (`#D12B58` Berry Crimson for Passwords, `#00B0D4` Teal Cyan for Notes, `#46A66C` Fresh Green for Checklists).
-  - **Continuous Spectrum Strength Meter**: Horizontal multi-color gradient track (`#FF0000` $\to$ `#01CC1D`) with real-time sliding notch indicator based on BlackBerry's `PasswordSecurityField`.
-  - **3-Candidate Password Generator**: Implements BlackBerry's `LN0/c.B` algorithm—generates 3 candidate passwords using `SecureRandom`, computes entropy/security scores, and returns the strongest candidate.
+- **Core Experience & Visual Styling**:
+  - **Category Visual Accents**: Signature 5dp vertical color strips (`#D12B58` Crimson for Passwords, `#00B0D4` Teal Cyan for Notes, `#46A66C` Fresh Green for Checklists).
+  - **Continuous Spectrum Strength Meter**: Horizontal multi-color gradient track (`#FF0000` $\to$ `#01CC1D`) with real-time sliding notch indicator based on a dynamic `PasswordSecurityField`.
+  - **3-Candidate Password Generator**: Generates 3 candidate passwords using `SecureRandom`, computes entropy/security scores, and returns the strongest candidate.
   - **Navigation Drawer Hierarchy**: Full modal drawer featuring record count badges across All, Favorites, Passwords, Notes, and Checklists.
   - **Auto-Lock & Wipe Timers**: Authentic timeout intervals (30s, 1m, 2m, 5m, 10m, 15m [default], 30m, 1h, Never), screen turn-off auto-lock, and instant clipboard wiping on lock.
-  - **Bidirectional CSV Interoperability**: 18-column canonical BlackBerry Password Keeper CSV import/export with automatic 10-digit epoch-seconds timestamp normalization.
+  - **Bidirectional CSV Interoperability**: 18-column canonical CSV import/export with automatic 10-digit epoch-seconds timestamp normalization.
 - **Clean Architecture**: 12 strictly decoupled layers without heavyweight third-party frameworks.
 - **Companion Web / PWA Client**: Standalone client-side WebCrypto implementation located in [`web-app/`](web-app/).
 
@@ -43,7 +43,7 @@ lockself-android/app/src/main/java/com/lockself/app/
 │   │   ├── EditRecordViewModel.kt
 │   │   └── ViewModelFactory.kt   # Clean DI-free ViewModelProvider Factory
 │   └── theme/                    # Design System & Colors
-│       ├── Color.kt              # BlackBerry extracted palette (#D12B58, #00B0D4, #46A66C)
+│       ├── Color.kt              # Signature accent palette (#D12B58, #00B0D4, #46A66C)
 │       └── Theme.kt
 ├── data/
 │   ├── model/                    # Domain Models & Entities
@@ -56,13 +56,13 @@ lockself-android/app/src/main/java/com/lockself/app/
 │   ├── crypto/                   # Cryptographic Engine
 │   │   └── VaultCryptoManager.kt # AES-GCM-256, PBKDF2, Keystore, Biometric wrapping
 │   └── repository/               # Repository Layer
-│       └── VaultRepository.kt    # Vault CRUD, JSON backup, and BlackBerry CSV export
+│       └── VaultRepository.kt    # Vault CRUD, JSON backup, and CSV export
 └── util/
-    ├── AppPreferences.kt         # BlackBerry auto-lock & clipboard timeout persistence
+    ├── AppPreferences.kt         # Inactivity auto-lock & clipboard timeout persistence
     ├── ClipboardHelper.kt        # Auto-clearing clipboard management
-    ├── PasswordGenerator.kt      # 3-candidate best-security selection algorithm (LN0/c.B)
+    ├── PasswordGenerator.kt      # 3-candidate best-security selection algorithm
     ├── PasswordStrengthMeter.kt  # Real-time score & multi-level evaluator
-    └── BlackBerryCsvParser.kt    # 18-column bidirectional CSV parser/exporter
+    └── VaultCsvParser.kt         # 18-column bidirectional CSV parser/exporter
 ```
 
 ---
@@ -104,15 +104,15 @@ lockself-android/app/build/outputs/apk/release/app-release.apk
 
 ---
 
-## Reverse Engineering Documentation
+## Technical Specifications
 
-Detailed reverse-engineering specifications, schema comparisons, and disassembly findings are documented in [`reverse-engineering/blackberry-password-keeper/`](reverse-engineering/blackberry-password-keeper/):
-- [APK Structure & Metadata](reverse-engineering/blackberry-password-keeper/APK_METADATA.md)
-- [Application Architecture](reverse-engineering/blackberry-password-keeper/APPLICATION_ARCHITECTURE.md)
-- [Database Schema & Migration Mapping](reverse-engineering/blackberry-password-keeper/DATABASE_SCHEMA.md)
-- [Encryption & Cryptographic Tracing](reverse-engineering/blackberry-password-keeper/ENCRYPTION_ANALYSIS.md)
-- [Feature Parity Matrix](reverse-engineering/blackberry-password-keeper/FEATURE_PARITY_MATRIX.md)
-- [Reverse Engineering Findings](reverse-engineering/blackberry-password-keeper/REVERSE_ENGINEERING_FINDINGS.md)
+Detailed architectural specifications, schema mappings, and cryptographic analysis are documented in [`reverse-engineering/reference-spec/`](reverse-engineering/reference-spec/):
+- [APK Structure & Metadata](reverse-engineering/reference-spec/APK_METADATA.md)
+- [Application Architecture](reverse-engineering/reference-spec/APPLICATION_ARCHITECTURE.md)
+- [Database Schema & Migration Mapping](reverse-engineering/reference-spec/DATABASE_SCHEMA.md)
+- [Encryption & Cryptographic Tracing](reverse-engineering/reference-spec/ENCRYPTION_ANALYSIS.md)
+- [Feature Parity Matrix](reverse-engineering/reference-spec/FEATURE_PARITY_MATRIX.md)
+- [Technical Findings](reverse-engineering/reference-spec/REVERSE_ENGINEERING_FINDINGS.md)
 
 ---
 
