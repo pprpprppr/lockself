@@ -1,0 +1,50 @@
+# Gradle & Build Artifacts
+.gradle/
+build/
+**/build/
+**/.gradle/
+**/.kotlin/
+*.class
+
+# Android Studio / IntelliJ / Eclipse / VS Code
+.idea/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+.vscode/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Binary & Packaging Artifacts
+*.apk
+*.ap_
+*.aab
+*.dex
+output-metadata.json
+baselineProfiles/
+
+# Proprietary target APK & reverse engineering dumps
+Password Keeper.apk
+decompressed_apk/
+apk_resources.txt
+
+# OS & Temp Files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+*.log
+*.tmp
+crashlytics-build.properties
+
+# Web / Node
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
