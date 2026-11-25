@@ -1,5 +1,6 @@
 package com.lockself.app.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +27,13 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.VpnKey
-import androidx.compose.material3.Divider
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +43,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -56,9 +59,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lockself.app.LockSelfApp
 import com.lockself.app.data.model.RecordType
 import com.lockself.app.ui.components.CategoryBadge
 import com.lockself.app.ui.components.RecordCardItem
@@ -82,13 +87,48 @@ fun VaultMainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    val context = LocalContext.current
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val records by viewModel.filteredRecords.collectAsState()
     val counts by viewModel.categoryCounts.collectAsState()
+    val pendingImport by LockSelfApp.instance.pendingImport.collectAsState()
 
     var isSearchActive by remember { mutableStateOf(false) }
     var fabMenuExpanded by remember { mutableStateOf(false) }
+
+    pendingImport?.let { incoming ->
+        AlertDialog(
+            onDismissRequest = { LockSelfApp.instance.clearPendingImport() },
+            title = { Text("Import CSV Backup") },
+            text = {
+                Text(
+                    "Import records from \"${incoming.displayName ?: "selected file"}\" into your vault?"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        LockSelfApp.instance.clearPendingImport()
+                        viewModel.importPendingCsv(context.contentResolver, incoming) { count, err ->
+                            if (err != null) {
+                                Toast.makeText(context, "Import failed: $err", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(context, "Imported $count records successfully", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                ) {
+                    Text("Import")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { LockSelfApp.instance.clearPendingImport() }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -183,7 +223,7 @@ fun VaultMainScreen(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },

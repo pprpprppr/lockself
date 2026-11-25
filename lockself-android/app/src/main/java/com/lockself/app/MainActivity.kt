@@ -1,17 +1,21 @@
 package com.lockself.app
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.lockself.app.ui.navigation.LockSelfNavGraph
 import com.lockself.app.ui.navigation.NavRoute
 import com.lockself.app.ui.theme.LockSelfTheme
+import com.lockself.app.util.CsvFileHelper
 
 class MainActivity : FragmentActivity() {
 
@@ -21,6 +25,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleIncomingIntent(intent)
 
         setContent {
             val navController = rememberNavController()
@@ -51,6 +56,35 @@ class MainActivity : FragmentActivity() {
                         )
                     }
                 )
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingIntent(intent)
+    }
+
+    private fun handleIncomingIntent(intent: Intent?) {
+        if (intent == null) return
+        when (intent.action) {
+            Intent.ACTION_VIEW -> {
+                val uri = intent.data ?: return
+                val name = CsvFileHelper.getDisplayName(contentResolver, uri)
+                app.setPendingImport(PendingImportData(uri = uri, displayName = name))
+            }
+            Intent.ACTION_SEND -> {
+                val streamUri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+                if (streamUri != null) {
+                    val name = CsvFileHelper.getDisplayName(contentResolver, streamUri)
+                    app.setPendingImport(PendingImportData(uri = streamUri, displayName = name))
+                } else {
+                    val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                    if (!sharedText.isNullOrBlank()) {
+                        app.setPendingImport(PendingImportData(rawText = sharedText, displayName = "Shared CSV text"))
+                    }
+                }
             }
         }
     }

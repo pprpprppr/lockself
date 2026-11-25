@@ -1,14 +1,19 @@
 package com.lockself.app.ui.viewmodel
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lockself.app.data.crypto.VaultCryptoManager
 import com.lockself.app.data.repository.VaultRepository
 import com.lockself.app.util.AppPreferences
+import com.lockself.app.util.CsvFileHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsViewModel(
     private val repository: VaultRepository,
@@ -116,11 +121,68 @@ class SettingsViewModel(
                 val csv = repository.exportCsv()
                 cachedExportCsv = csv
                 onExported(csv)
-                _statusMessage.value = "Export generated successfully"
             }.onFailure { err ->
                 _statusMessage.value = "Export failed: ${err.localizedMessage ?: "Unknown error"}"
             }
             _isBusy.value = false
+        }
+    }
+
+    fun exportCsvToUri(
+        contentResolver: ContentResolver,
+        uri: Uri,
+        csvContent: String,
+        onComplete: (Boolean, String?) -> Unit
+    ) {
+        viewModelScope.launch {
+            _isBusy.value = true
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    CsvFileHelper.writeCsvTextToUri(contentResolver, uri, csvContent)
+                }
+            }
+            cachedExportCsv = null
+            _isBusy.value = false
+            result.onSuccess {
+                _statusMessage.value = "Backup exported successfully"
+                onComplete(true, null)
+            }.onFailure { err ->
+                val msg = err.localizedMessage ?: "Failed to write backup file"
+                _statusMessage.value = "Export failed: $msg"
+                onComplete(false, msg)
+            }
+        }
+    }
+
+    fun importCsvFromUri(
+        contentResolver: ContentResolver,
+        uri: Uri,
+        onComplete: (Int, String?) -> Unit
+    ) {
+        viewModelScope.launch {
+            _isBusy.value = true
+            val result = runCatching {
+                val csvText = withContext(Dispatchers.IO) {
+                    CsvFileHelper.readCsvTextFromUri(contentResolver, uri)
+                }
+                if (csvText.isBlank()) {
+                    throw IllegalArgumentException("Selected CSV file is empty")
+                }
+                repository.importCsv(csvText)
+            }
+            _isBusy.value = false
+            result.onSuccess { count ->
+                if (count > 0) {
+                    _statusMessage.value = "Imported $count records successfully"
+                } else {
+                    _statusMessage.value = "No valid records found in the selected CSV file"
+                }
+                onComplete(count, null)
+            }.onFailure { err ->
+                val msg = err.localizedMessage ?: "Failed to read CSV file"
+                _statusMessage.value = "Import failed: $msg"
+                onComplete(0, msg)
+            }
         }
     }
 
@@ -129,7 +191,11 @@ class SettingsViewModel(
             _isBusy.value = true
             runCatching {
                 val count = repository.importCsv(csvContent)
-                _statusMessage.value = "Imported $count records successfully"
+                _statusMessage.value = if (count > 0) {
+                    "Imported $count records successfully"
+                } else {
+                    "No valid records found in CSV text"
+                }
                 onComplete(count)
             }.onFailure {
                 _statusMessage.value = "Failed to import CSV: ${it.localizedMessage ?: "Unknown error"}"

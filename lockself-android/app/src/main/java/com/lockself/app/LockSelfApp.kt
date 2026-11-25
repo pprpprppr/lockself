@@ -1,11 +1,21 @@
 package com.lockself.app
 
 import android.app.Application
+import android.net.Uri
 import com.lockself.app.data.crypto.VaultCryptoManager
 import com.lockself.app.data.database.LockSelfDatabase
 import com.lockself.app.data.repository.VaultRepository
 import com.lockself.app.util.AppPreferences
 import com.lockself.app.util.ClipboardHelper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+data class PendingImportData(
+    val uri: Uri? = null,
+    val rawText: String? = null,
+    val displayName: String? = null
+)
 
 class LockSelfApp : Application() {
 
@@ -30,6 +40,17 @@ class LockSelfApp : Application() {
 
     @Volatile
     var isBiometricPromptActive: Boolean = false
+
+    private val _pendingImport = MutableStateFlow<PendingImportData?>(null)
+    val pendingImport: StateFlow<PendingImportData?> = _pendingImport.asStateFlow()
+
+    fun setPendingImport(data: PendingImportData?) {
+        _pendingImport.value = data
+    }
+
+    fun clearPendingImport() {
+        _pendingImport.value = null
+    }
 
     override fun onCreate() {
         super.onCreate()

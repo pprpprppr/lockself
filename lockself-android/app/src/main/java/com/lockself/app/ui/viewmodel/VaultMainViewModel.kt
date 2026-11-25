@@ -1,11 +1,14 @@
 package com.lockself.app.ui.viewmodel
 
+import android.content.ContentResolver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lockself.app.PendingImportData
 import com.lockself.app.data.crypto.VaultCryptoManager
 import com.lockself.app.data.model.FullRecord
 import com.lockself.app.data.model.RecordType
 import com.lockself.app.data.repository.VaultRepository
+import com.lockself.app.util.CsvFileHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class DrawerCategory {
     ALL,
@@ -94,6 +98,33 @@ class VaultMainViewModel(
         viewModelScope.launch {
             runCatching {
                 repository.toggleFavorite(recordId)
+            }
+        }
+    }
+
+    fun importPendingCsv(
+        contentResolver: ContentResolver,
+        pending: PendingImportData,
+        onResult: (Int, String?) -> Unit
+    ) {
+        viewModelScope.launch {
+            val result = runCatching {
+                val csvText = when {
+                    pending.uri != null -> withContext(Dispatchers.IO) {
+                        CsvFileHelper.readCsvTextFromUri(contentResolver, pending.uri)
+                    }
+                    !pending.rawText.isNullOrBlank() -> pending.rawText
+                    else -> throw IllegalArgumentException("No CSV source provided")
+                }
+                if (csvText.isBlank()) {
+                    throw IllegalArgumentException("Selected CSV file is empty")
+                }
+                repository.importCsv(csvText)
+            }
+            result.onSuccess { count ->
+                onResult(count, null)
+            }.onFailure { err ->
+                onResult(0, err.localizedMessage ?: "Failed to import CSV")
             }
         }
     }
