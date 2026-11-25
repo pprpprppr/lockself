@@ -555,7 +555,7 @@ fun SettingsScreen(
             // About Section
             SettingsSectionHeader(title = "About", icon = Icons.Default.Info)
             Text(
-                text = "LockSelf Android v1.0.0",
+                text = "LockSelf Android v${com.lockself.app.BuildConfig.VERSION_NAME}",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 15.sp,
                 modifier = Modifier.padding(top = 4.dp)
