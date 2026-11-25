@@ -100,7 +100,7 @@ data class FullRecord(
     val note: String? get() = fields[FieldType.NOTE]
 
     /**
-     * BlackBerry Password Keeper subtitle prioritization logic:
+     * Canonical subtitle prioritization logic:
      * - user • site (if both exist)
      * - user (if only username exists)
      * - site (if only website exists)

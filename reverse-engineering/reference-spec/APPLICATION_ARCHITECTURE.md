@@ -1,8 +1,8 @@
-# BlackBerry Password Keeper — Application Architecture Report
+# Legacy Password Keeper — Application Architecture Report
 
-## 1. Original BlackBerry Architecture Model
+## 1. Original Legacy Vault Architecture Model
 
-The original BlackBerry Password Keeper (`com.blackberry.passwordkeeper`) employs a traditional Android Activity/Fragment architectural pattern anchored by an Application-level controller:
+The original Legacy Password Keeper (`com.legacy.passwordkeeper`) employs a traditional Android Activity/Fragment architectural pattern anchored by an Application-level controller:
 
 ```mermaid
 flowchart TD
@@ -92,7 +92,7 @@ flowchart TD
 
     subgraph Repository_Layer ["Repository Layer (Single Source of Truth)"]
         VR[VaultRepository]
-        CSV_Parser[BlackBerryCsvParser]
+        CSV_Parser[Legacy VaultCsvParser]
     end
 
     subgraph Domain_Services ["Domain Logic & Utilities"]
@@ -148,4 +148,4 @@ flowchart TD
 
 1. **Deprecated Fragments**: Replaced deprecated `android.app.Fragment` with type-safe `NavHost` and Composable destinations (`NavRoutes`).
 2. **Thread Blocking**: Replaced synchronous SQL queries on the UI thread with asynchronous Room `Flow` and `suspend` functions executing on `Dispatchers.IO`.
-3. **Telemetry & Ads**: Stripped all references to `com.google.android.gms.ads` and `com.blackberry.ddt` analytics, ensuring a zero-footprint, 100% offline, privacy-first implementation.
+3. **Telemetry & Ads**: Stripped all references to `com.google.android.gms.ads` and `com.legacy.ddt` analytics, ensuring a zero-footprint, 100% offline, privacy-first implementation.

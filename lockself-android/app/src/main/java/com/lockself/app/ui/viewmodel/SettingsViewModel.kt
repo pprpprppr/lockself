@@ -37,6 +37,12 @@ class SettingsViewModel(
     private val _statusMessage = MutableStateFlow<String?>(null)
     val statusMessage: StateFlow<String?> = _statusMessage.asStateFlow()
 
+    private val _isBusy = MutableStateFlow(false)
+    val isBusy: StateFlow<Boolean> = _isBusy.asStateFlow()
+
+    // Cached CSV content across configuration changes or file picker lifecycle
+    var cachedExportCsv: String? = null
+
     fun updateLockTimeout(seconds: Int) {
         preferences.lockTimeoutSeconds = seconds
         _lockTimeout.value = seconds
@@ -105,22 +111,31 @@ class SettingsViewModel(
 
     fun exportCsv(onExported: (String) -> Unit) {
         viewModelScope.launch {
-            val csv = repository.exportBlackBerryCsv()
-            onExported(csv)
-            _statusMessage.value = "Export generated successfully"
+            _isBusy.value = true
+            runCatching {
+                val csv = repository.exportCsv()
+                cachedExportCsv = csv
+                onExported(csv)
+                _statusMessage.value = "Export generated successfully"
+            }.onFailure { err ->
+                _statusMessage.value = "Export failed: ${err.localizedMessage ?: "Unknown error"}"
+            }
+            _isBusy.value = false
         }
     }
 
     fun importCsv(csvContent: String, onComplete: (Int) -> Unit) {
         viewModelScope.launch {
+            _isBusy.value = true
             runCatching {
-                val count = repository.importBlackBerryCsv(csvContent)
+                val count = repository.importCsv(csvContent)
                 _statusMessage.value = "Imported $count records successfully"
                 onComplete(count)
             }.onFailure {
-                _statusMessage.value = "Failed to import CSV: ${it.localizedMessage}"
+                _statusMessage.value = "Failed to import CSV: ${it.localizedMessage ?: "Unknown error"}"
                 onComplete(0)
             }
+            _isBusy.value = false
         }
     }
 

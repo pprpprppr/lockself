@@ -89,7 +89,7 @@ fun EditRecordScreen(
 
     BackHandler { attemptBack() }
 
-    // Discard Confirmation Dialog (BlackBerry EditRecordActivity: changes_made_message)
+    // Discard Confirmation Dialog (changes_made_message)
     if (showDiscardDialog) {
         AlertDialog(
             onDismissRequest = { showDiscardDialog = false },

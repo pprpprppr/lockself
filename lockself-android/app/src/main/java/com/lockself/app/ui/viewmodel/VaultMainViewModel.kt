@@ -70,7 +70,7 @@ class VaultMainViewModel(
     }.flowOn(Dispatchers.Default)
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Category Count Badges matching BlackBerry NavigationDrawerFragment
+    // Category Count Badges matching drawer items
     val categoryCounts: StateFlow<Map<DrawerCategory, Int>> = allRecords.map { records ->
         mapOf(
             DrawerCategory.ALL to records.size,

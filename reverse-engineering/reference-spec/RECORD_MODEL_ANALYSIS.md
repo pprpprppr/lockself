@@ -1,8 +1,8 @@
-# BlackBerry Password Keeper — Record Model Analysis Report
+# Legacy Password Keeper — Record Model Analysis Report
 
 ## 1. Domain Record Hierarchy
 
-BlackBerry Password Keeper structures all user items under a unified `Record` polymorphic container (`P0.m`), differentiated by `RecordType` (`P0.q`).
+Legacy Password Keeper structures all user items under a unified `Record` polymorphic container (`P0.m`), differentiated by `RecordType` (`P0.q`).
 
 ```mermaid
 classDiagram

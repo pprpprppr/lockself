@@ -1,8 +1,8 @@
-# BlackBerry Password Keeper — DEX Class & Package Analysis Report
+# Legacy Password Keeper — DEX Class & Package Analysis Report
 
 ## 1. Package Organization & Deobfuscation Map
 
-BlackBerry Password Keeper applies ProGuard/R8 bytecode obfuscation to internal proprietary packages while retaining Android framework component names. Reverse engineering analysis maps the obfuscated packages as follows:
+Legacy Password Keeper applies ProGuard/R8 bytecode obfuscation to internal proprietary packages while retaining Android framework component names. Reverse engineering analysis maps the obfuscated packages as follows:
 
 | Obfuscated Package | Deobfuscated Role | Core Functional Responsibility | Evidence Classification |
 | :--- | :--- | :--- | :--- |
@@ -145,4 +145,4 @@ public enum d {
 
 ### `Q0.b` — `CsvRecordImporter`
 - **Streaming Parser**: Byte-by-byte finite state machine (`NEXT_PART`, `IN_PART`, `DQUOTE`, `DQUOTE_QUOTE`) handling multiline text, commas inside quoted fields, and quote escapes. [STATICALLY CONFIRMED via `Q0/b.java`]
-- **Format Compatibility**: Seamlessly imports CSV files with or without header rows, legacy BlackBerry desktop backups, and timestamps in seconds or milliseconds. [STATICALLY CONFIRMED]
+- **Format Compatibility**: Seamlessly imports CSV files with or without header rows, legacy Legacy Vault desktop backups, and timestamps in seconds or milliseconds. [STATICALLY CONFIRMED]

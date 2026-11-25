@@ -40,7 +40,7 @@ object PasswordGenerator {
             generateSingleCandidate(effectiveLength, pools, allChars)
         }
 
-        // Return candidate with highest evaluated security score (BlackBerry LN0/c.B selection pattern)
+        // Return candidate with highest evaluated security score (entropy-driven selection pattern)
         return candidates.maxByOrNull { PasswordStrengthMeter.evaluate(it).score } ?: candidates.first()
     }
 

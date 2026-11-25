@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — Database Schema Report
+# Legacy Password Keeper — Database Schema Report
 
 ## 1. Decompiled Original Schema (SQLCipher)
 

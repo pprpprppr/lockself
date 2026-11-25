@@ -1,9 +1,9 @@
-# BlackBerry Password Keeper — APK Metadata Report
+# Legacy Password Keeper — APK Metadata Report
 
 ## 1. Executive Identification
 
-- **Application Label**: BlackBerry Password Keeper
-- **Package Name**: `com.blackberry.passwordkeeper`
+- **Application Label**: Legacy Password Keeper
+- **Package Name**: `com.legacy.passwordkeeper`
 - **Version Name**: `2.2643.6`
 - **Version Code**: `142825012`
 - **Target SDK**: `36` (Android 16 preview)
@@ -26,13 +26,13 @@
 | File Size | `25,059,775` bytes | DIRECTLY OBSERVED | `ls -l` command |
 | SHA-256 Digest | `24e6b63c9efb4abb9e711c624647a6b517be5df3b6294335c1e5585d0c3a4258` | DIRECTLY OBSERVED | `sha256sum` utility output |
 | Application Name | `Password Keeper` | STATICALLY CONFIRMED | `aapt dump badging`, `res/values/strings.xml` (`app_name`) |
-| Package Name | `com.blackberry.passwordkeeper` | STATICALLY CONFIRMED | `aapt dump badging`, `AndroidManifest.xml` package attribute |
+| Package Name | `com.legacy.passwordkeeper` | STATICALLY CONFIRMED | `aapt dump badging`, `AndroidManifest.xml` package attribute |
 | Version Code | `142825012` | STATICALLY CONFIRMED | `aapt dump badging`, `AndroidManifest.xml` versionCode attribute |
 | Version Name | `2.2643.6` | STATICALLY CONFIRMED | `aapt dump badging`, `AndroidManifest.xml` versionName attribute |
 | Min SDK | `28` | STATICALLY CONFIRMED | `AndroidManifest.xml` `uses-sdk` element |
 | Target SDK | `36` | STATICALLY CONFIRMED | `AndroidManifest.xml` `uses-sdk` element |
-| Application Class | `com.blackberry.passwordkeeper.PKApplication` | STATICALLY CONFIRMED | `AndroidManifest.xml` application `android:name` |
-| Main Activity | `com.blackberry.passwordkeeper.MainActivity` | STATICALLY CONFIRMED | `AndroidManifest.xml` launcher activity declaration |
+| Application Class | `com.legacy.passwordkeeper.PKApplication` | STATICALLY CONFIRMED | `AndroidManifest.xml` application `android:name` |
+| Main Activity | `com.legacy.passwordkeeper.MainActivity` | STATICALLY CONFIRMED | `AndroidManifest.xml` launcher activity declaration |
 
 ---
 
@@ -44,8 +44,8 @@
 - **VCS System**: `GIT` [STATICALLY CONFIRMED via `META-INF/version-control-info.textproto`]
 
 ### Signing Certificate
-- **Signer**: `CN=BlackBerry Limited` [STATICALLY CONFIRMED via `keytool -printcert -jarfile`]
-- **Issuer**: `CN=BlackBerry Limited` [STATICALLY CONFIRMED]
+- **Signer**: `CN=Legacy Vault Limited` [STATICALLY CONFIRMED via `keytool -printcert -jarfile`]
+- **Issuer**: `CN=Legacy Vault Limited` [STATICALLY CONFIRMED]
 - **Serial Number**: `b2c4d6efe664ea95dcb83b744a5ee8b5` [STATICALLY CONFIRMED]
 - **Validity Period**: `Thu Mar 05 14:19:06 EST 2015` to `Sat Mar 05 14:19:06 EST 2050` [STATICALLY CONFIRMED]
 - **Signature Algorithm**: `SHA256withRSA` (2048-bit RSA key) [STATICALLY CONFIRMED]

@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — Encryption & Cryptography Analysis Report
+# Legacy Password Keeper — Encryption & Cryptography Analysis Report
 
 ## 1. Original Application Cryptographic Architecture
 
@@ -36,7 +36,7 @@
 
 1. **Direct Memory Passphrase Retention**: Passphrase `char[]` is converted to immutable Java `String` and `ByteBuffer` without guaranteed in-memory clearing, leaving residual plaintext in heap dumps.
 2. **Legacy FingerprintManager API**: Relies on deprecated `android.hardware.fingerprint.FingerprintManager` rather than modern AndroidX `BiometricPrompt`.
-3. **Third-Party Telemetry & Ad Leakage**: Active inclusion of Google AdMob and BlackBerry DDT telemetry poses side-channel metadata exposure risks.
+3. **Third-Party Telemetry & Ad Leakage**: Active inclusion of Google AdMob and Legacy Vault DDT telemetry poses side-channel metadata exposure risks.
 
 ---
 

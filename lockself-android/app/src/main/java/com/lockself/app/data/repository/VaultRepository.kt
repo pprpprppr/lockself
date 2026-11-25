@@ -10,7 +10,7 @@ import com.lockself.app.data.model.PasswordHistoryEntity
 import com.lockself.app.data.model.RecordEntity
 import com.lockself.app.data.model.RecordFieldEntity
 import com.lockself.app.data.model.RecordType
-import com.lockself.app.util.BlackBerryCsvParser
+import com.lockself.app.util.VaultCsvParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -255,25 +255,25 @@ class VaultRepository(
         Unit
     }
 
-    suspend fun exportBlackBerryCsv(): String = withContext(Dispatchers.IO) {
+    suspend fun exportCsv(): String = withContext(Dispatchers.IO) {
         val records = getAllFullRecords().first()
-        BlackBerryCsvParser.exportToCsv(records)
+        VaultCsvParser.exportToCsv(records)
     }
 
     /**
-     * Imports records from a BlackBerry Password Keeper CSV backup in a single atomic transaction.
+     * Imports records from a CSV backup in a single atomic transaction.
      * Preserves:
      * - Checklist items with their checked state and sort order
      * - Historical passwords (encrypted with the vault key)
      * - Original record lastModified timestamps and UIDs
      * - Custom key-value fields and security questions
      */
-    suspend fun importBlackBerryCsv(csvContent: String): Int = withContext(Dispatchers.IO) {
+    suspend fun importCsv(csvContent: String): Int = withContext(Dispatchers.IO) {
         if (!crypto.isVaultUnlocked()) {
             throw IllegalStateException("Vault is locked! Please unlock your vault before importing.")
         }
 
-        val parsedRecords = BlackBerryCsvParser.parseCsv(csvContent)
+        val parsedRecords = VaultCsvParser.parseCsv(csvContent)
         if (parsedRecords.isEmpty()) return@withContext 0
 
         val bundles = mutableListOf<RecordImportBundle>()

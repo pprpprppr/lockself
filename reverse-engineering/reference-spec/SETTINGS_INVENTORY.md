@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — Settings Inventory Report
+# Legacy Password Keeper — Settings Inventory Report
 
 ## 1. Complete Preferences Specification
 

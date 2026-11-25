@@ -202,7 +202,7 @@ object VaultCsvParser {
         if (row.size < 3) return false
         val cleanCells = row.map { it.trim().lowercase().removePrefix("\uFEFF").replace("\"", "").replace("_", " ") }
 
-        // Fast check: Standard BlackBerry 18-column header has "url" at col 0 and "username" at col 1
+        // Fast check: Standard 18-column header has "url" at col 0 and "username" at col 1
         if (cleanCells.getOrNull(0) == "url" && cleanCells.getOrNull(1) == "username") {
             return true
         }
@@ -280,7 +280,7 @@ object VaultCsvParser {
 
     private fun buildFallbackMapping(row: List<String>): CsvColumnMapping {
         if (row.size >= 18) {
-            // Standard BlackBerry Password Keeper 18-column structure
+            // Standard 18-column structure
             return CsvColumnMapping(
                 urlIndex = 0,
                 usernameIndex = 1,
@@ -300,7 +300,7 @@ object VaultCsvParser {
         val looksLikeUrl = col0.startsWith("http://") || col0.startsWith("https://") || col0.startsWith("www.") || col0.contains(".com")
 
         return if (looksLikeUrl) {
-            // BlackBerry legacy: url, username, password, extra, name
+            // URL-first legacy: url, username, password, extra, name
             CsvColumnMapping(
                 urlIndex = 0,
                 usernameIndex = 1,
@@ -511,6 +511,4 @@ object VaultCsvParser {
         }
     }
 }
-
-typealias BlackBerryCsvParser = VaultCsvParser
 

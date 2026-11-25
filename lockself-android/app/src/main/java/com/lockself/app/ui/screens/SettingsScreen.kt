@@ -1,5 +1,6 @@
 package com.lockself.app.ui.screens
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,8 +21,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -72,13 +75,17 @@ fun SettingsScreen(
     val clearClipboardOnLock by viewModel.clearClipboardOnLock.collectAsState()
     val biometricEnabled by viewModel.biometricEnabled.collectAsState()
     val statusMessage by viewModel.statusMessage.collectAsState()
+    val isBusy by viewModel.isBusy.collectAsState()
 
-    val snackbarHostState = remember { SnackbarHostState() }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
     var showLockTimeoutDialog by remember { mutableStateOf(false) }
     var showClipboardTimeoutDialog by remember { mutableStateOf(false) }
+    var showExportOptionsDialog by remember { mutableStateOf(false) }
+    var showImportOptionsDialog by remember { mutableStateOf(false) }
+    var showPasteImportDialog by remember { mutableStateOf(false) }
+    var pastedCsvText by remember { mutableStateOf("") }
 
-    var pendingCsvToExport by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(statusMessage) {
         statusMessage?.let {
@@ -87,42 +94,56 @@ fun SettingsScreen(
         }
     }
 
-    // Storage Access Framework Export Launcher
+    // Storage Access Framework Export Launcher with safe fallback
     val exportFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv")
     ) { uri ->
         LockSelfApp.instance.isSafPickerActive = false
-        if (uri != null && pendingCsvToExport != null) {
+        val csvContent = viewModel.cachedExportCsv
+        if (uri != null && csvContent != null) {
             runCatching {
                 context.contentResolver.openOutputStream(uri)?.use { os ->
-                    OutputStreamWriter(os).use { writer ->
-                        writer.write(pendingCsvToExport)
+                    OutputStreamWriter(os, Charsets.UTF_8).use { writer ->
+                        writer.write(csvContent)
                     }
                 }
                 Toast.makeText(context, "Backup exported successfully", Toast.LENGTH_SHORT).show()
-            }.onFailure {
-                Toast.makeText(context, "Export failed: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            }.onFailure { err ->
+                Toast.makeText(context, "Export failed: ${err.localizedMessage}", Toast.LENGTH_LONG).show()
             }
-            pendingCsvToExport = null
+            viewModel.cachedExportCsv = null
         }
     }
 
-    // Storage Access Framework Import Launcher
+    // Storage Access Framework Import Launcher with universal GetContent
     val importFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
+        contract = ActivityResultContracts.GetContent()
     ) { uri ->
         LockSelfApp.instance.isSafPickerActive = false
         if (uri != null) {
             runCatching {
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val csvText = inputStream.bufferedReader().use { it.readText() }
+                    val csvText = inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
                     viewModel.importCsv(csvText) { count ->
-                        Toast.makeText(context, "Imported $count records from BlackBerry CSV", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Imported $count records successfully", Toast.LENGTH_SHORT).show()
                     }
                 }
-            }.onFailure {
-                Toast.makeText(context, "Import failed: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            }.onFailure { err ->
+                Toast.makeText(context, "Import failed: ${err.localizedMessage}", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    fun shareExportContent(csv: String) {
+        runCatching {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "LockSelf Vault Backup")
+                putExtra(Intent.EXTRA_TEXT, csv)
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share Vault Backup"))
+        }.onFailure {
+            Toast.makeText(context, "Unable to share: ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -169,7 +190,7 @@ fun SettingsScreen(
                             text = error!!,
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp)
+                            modifier = Modifier.padding(top = 6.dp)
                         )
                     }
                 }
@@ -177,10 +198,6 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (newPass.length < 6) {
-                            error = "New password must be at least 6 characters"
-                            return@TextButton
-                        }
                         if (newPass != confirmPass) {
                             error = "Passwords do not match"
                             return@TextButton
@@ -205,11 +222,11 @@ fun SettingsScreen(
         )
     }
 
-    // Lock Timeout Picker Dialog
+    // Lock Timeout Dialog
     if (showLockTimeoutDialog) {
         AlertDialog(
             onDismissRequest = { showLockTimeoutDialog = false },
-            title = { Text("Auto-Lock Inactivity Timeout") },
+            title = { Text("Vault Lock Timeout") },
             text = {
                 Column {
                     AppPreferences.LOCK_TIMEOUT_OPTIONS.forEach { (seconds, label) ->
@@ -220,29 +237,31 @@ fun SettingsScreen(
                                     viewModel.updateLockTimeout(seconds)
                                     showLockTimeoutDialog = false
                                 }
-                                .padding(vertical = 4.dp),
+                                .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (lockTimeout == seconds),
+                                selected = lockTimeout == seconds,
                                 onClick = {
                                     viewModel.updateLockTimeout(seconds)
                                     showLockTimeoutDialog = false
                                 }
                             )
-                            Text(label, modifier = Modifier.padding(start = 8.dp))
+                            Text(text = label, modifier = Modifier.padding(start = 8.dp))
                         }
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
-                TextButton(onClick = { showLockTimeoutDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showLockTimeoutDialog = false }) {
+                    Text("Cancel")
+                }
             }
         )
     }
 
-    // Clipboard Timeout Picker Dialog
+    // Clipboard Timeout Dialog
     if (showClipboardTimeoutDialog) {
         AlertDialog(
             onDismissRequest = { showClipboardTimeoutDialog = false },
@@ -257,24 +276,166 @@ fun SettingsScreen(
                                     viewModel.updateClipboardTimeout(seconds)
                                     showClipboardTimeoutDialog = false
                                 }
-                                .padding(vertical = 4.dp),
+                                .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = (clipboardTimeout == seconds),
+                                selected = clipboardTimeout == seconds,
                                 onClick = {
                                     viewModel.updateClipboardTimeout(seconds)
                                     showClipboardTimeoutDialog = false
                                 }
                             )
-                            Text(label, modifier = Modifier.padding(start = 8.dp))
+                            Text(text = label, modifier = Modifier.padding(start = 8.dp))
                         }
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
-                TextButton(onClick = { showClipboardTimeoutDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showClipboardTimeoutDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Export Options Dialog
+    if (showExportOptionsDialog) {
+        AlertDialog(
+            onDismissRequest = { showExportOptionsDialog = false },
+            title = { Text("Export Vault Backup") },
+            text = {
+                Column {
+                    Text(
+                        text = "Choose how to export your encrypted records as a standard 18-column CSV backup:",
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    SettingsClickableRow(
+                        title = "Save to Device File",
+                        subtitle = "Choose storage folder via system file picker",
+                        onClick = {
+                            showExportOptionsDialog = false
+                            LockSelfApp.instance.isSafPickerActive = true
+                            viewModel.exportCsv { csv ->
+                                runCatching {
+                                    exportFileLauncher.launch("LockSelf_Backup_${System.currentTimeMillis() / 1000}.csv")
+                                }.onFailure { err ->
+                                    LockSelfApp.instance.isSafPickerActive = false
+                                    Toast.makeText(context, "File picker unavailable: ${err.localizedMessage}. Sharing instead.", Toast.LENGTH_SHORT).show()
+                                    shareExportContent(csv)
+                                }
+                            }
+                        }
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 4.dp))
+                    SettingsClickableRow(
+                        title = "Share Backup File",
+                        subtitle = "Send via Email, Drive, Cloud, or Messaging",
+                        onClick = {
+                            showExportOptionsDialog = false
+                            viewModel.exportCsv { csv ->
+                                shareExportContent(csv)
+                            }
+                        }
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showExportOptionsDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Import Options Dialog
+    if (showImportOptionsDialog) {
+        AlertDialog(
+            onDismissRequest = { showImportOptionsDialog = false },
+            title = { Text("Import Vault Backup") },
+            text = {
+                Column {
+                    Text(
+                        text = "Restore records from an exported CSV backup file or pasted text:",
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    SettingsClickableRow(
+                        title = "Select File from Device",
+                        subtitle = "Pick CSV backup file from Downloads or Documents",
+                        onClick = {
+                            showImportOptionsDialog = false
+                            LockSelfApp.instance.isSafPickerActive = true
+                            runCatching {
+                                importFileLauncher.launch("*/*")
+                            }.onFailure { err ->
+                                LockSelfApp.instance.isSafPickerActive = false
+                                Toast.makeText(context, "File picker unavailable: ${err.localizedMessage}. Please paste CSV text.", Toast.LENGTH_SHORT).show()
+                                showPasteImportDialog = true
+                            }
+                        }
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 4.dp))
+                    SettingsClickableRow(
+                        title = "Paste CSV Text Directly",
+                        subtitle = "Paste raw CSV content directly into the app",
+                        onClick = {
+                            showImportOptionsDialog = false
+                            pastedCsvText = ""
+                            showPasteImportDialog = true
+                        }
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showImportOptionsDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Paste CSV Text Import Dialog
+    if (showPasteImportDialog) {
+        AlertDialog(
+            onDismissRequest = { showPasteImportDialog = false },
+            title = { Text("Paste CSV Content") },
+            text = {
+                Column {
+                    Text("Paste your 18-column CSV backup text below:", fontSize = 13.sp, modifier = Modifier.padding(bottom = 8.dp))
+                    OutlinedTextField(
+                        value = pastedCsvText,
+                        onValueChange = { pastedCsvText = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        label = { Text("CSV Text") },
+                        maxLines = 10
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (pastedCsvText.isNotBlank()) {
+                            viewModel.importCsv(pastedCsvText) { count ->
+                                Toast.makeText(context, "Imported $count records successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            showPasteImportDialog = false
+                        }
+                    }
+                ) {
+                    Text("Import")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPasteImportDialog = false }) {
+                    Text("Cancel")
+                }
             }
         )
     }
@@ -282,21 +443,25 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings", color = Color.White) },
+                title = { Text("Settings", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = BrandBlue)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BrandBlue,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
@@ -304,35 +469,35 @@ fun SettingsScreen(
             SettingsSectionHeader(title = "Security", icon = Icons.Default.Security)
             SettingsClickableRow(
                 title = "Change Master Password",
-                subtitle = "Re-encrypt vault with a new master password",
+                subtitle = "Update vault master password and re-derive encryption key",
                 onClick = { showChangePasswordDialog = true }
             )
             SettingsSwitchRow(
-                title = "Biometric Authentication",
-                subtitle = "Unlock vault using fingerprint or biometrics",
+                title = "Biometric Unlock",
+                subtitle = "Use fingerprint or face recognition to unlock",
                 checked = biometricEnabled,
                 onCheckedChange = { viewModel.toggleBiometric() }
             )
 
             Divider(modifier = Modifier.padding(vertical = 12.dp))
 
-            // Lock Preferences Section
+            // Auto-Lock Section
             SettingsSectionHeader(title = "Auto-Lock", icon = Icons.Default.Lock)
             val lockTimeoutLabel = AppPreferences.LOCK_TIMEOUT_OPTIONS.find { it.first == lockTimeout }?.second ?: "$lockTimeout seconds"
             SettingsClickableRow(
-                title = "Lock Timeout",
+                title = "Inactivity Lock Timeout",
                 subtitle = lockTimeoutLabel,
                 onClick = { showLockTimeoutDialog = true }
             )
             SettingsSwitchRow(
                 title = "Lock on Minimize",
-                subtitle = "Automatically lock vault when sending app to background",
+                subtitle = "Lock vault immediately when leaving the app",
                 checked = lockOnMinimize,
                 onCheckedChange = { viewModel.toggleLockOnMinimize() }
             )
             SettingsSwitchRow(
                 title = "Lock on Screen Timeout",
-                subtitle = "Automatically lock vault when device screen turns off",
+                subtitle = "Lock vault when device screen turns off",
                 checked = lockOnScreenTimeout,
                 onCheckedChange = { viewModel.toggleLockOnScreenTimeout() }
             )
@@ -356,27 +521,34 @@ fun SettingsScreen(
 
             Divider(modifier = Modifier.padding(vertical = 12.dp))
 
-            // Backup & Restore Section (BlackBerry CSV Compatibility)
+            // Backup & Restore Section
             SettingsSectionHeader(title = "Import & Export", icon = Icons.Default.Upload)
             SettingsClickableRow(
-                title = "Export BlackBerry CSV Backup",
-                subtitle = "Save all records into a compatible 18-column CSV file",
+                title = "Export CSV Backup",
+                subtitle = "Save records to CSV file or share via apps",
                 onClick = {
-                    LockSelfApp.instance.isSafPickerActive = true
-                    viewModel.exportCsv { csv ->
-                        pendingCsvToExport = csv
-                        exportFileLauncher.launch("LockSelf_Backup_${System.currentTimeMillis() / 1000}.csv")
-                    }
+                    showExportOptionsDialog = true
                 }
             )
             SettingsClickableRow(
-                title = "Import BlackBerry CSV Backup",
-                subtitle = "Restore records from an exported BlackBerry CSV backup",
+                title = "Import CSV Backup",
+                subtitle = "Restore records from CSV file or direct paste",
                 onClick = {
-                    LockSelfApp.instance.isSafPickerActive = true
-                    importFileLauncher.launch(arrayOf("text/comma-separated-values", "text/csv", "application/octet-stream", "*/*"))
+                    showImportOptionsDialog = true
                 }
             )
+
+            if (isBusy) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.padding(end = 12.dp))
+                    Text("Processing vault records...", fontSize = 14.sp)
+                }
+            }
 
             Divider(modifier = Modifier.padding(vertical = 12.dp))
 
@@ -389,7 +561,7 @@ fun SettingsScreen(
                 modifier = Modifier.padding(top = 4.dp)
             )
             Text(
-                text = "Independent high-fidelity reconstruction of BlackBerry Password Keeper.\n100% Offline • Zero Telemetry • Zero Network Permissions • AES-256-GCM Authenticated Encryption.",
+                text = "Independent secure offline password and credentials manager.\n100% Offline • Zero Telemetry • Zero Network Permissions • AES-256-GCM Authenticated Encryption.",
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
@@ -419,8 +591,8 @@ fun SettingsClickableRow(title: String, subtitle: String, onClick: () -> Unit) {
             .clickable { onClick() }
             .padding(vertical = 8.dp)
     ) {
-        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-        Text(subtitle, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+        Text(title, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+        Text(subtitle, color = Color.Gray, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
     }
 }
 
@@ -429,12 +601,12 @@ fun SettingsSwitchRow(title: String, subtitle: String, checked: Boolean, onCheck
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-            Text(subtitle, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+            Text(title, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+            Text(subtitle, color = Color.Gray, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }

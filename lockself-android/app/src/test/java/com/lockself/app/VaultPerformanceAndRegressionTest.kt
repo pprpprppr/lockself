@@ -6,7 +6,7 @@ import com.lockself.app.data.model.FullRecord
 import com.lockself.app.data.model.PasswordHistoryEntity
 import com.lockself.app.data.model.RecordEntity
 import com.lockself.app.data.model.RecordType
-import com.lockself.app.util.BlackBerryCsvParser
+import com.lockself.app.util.VaultCsvParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -75,7 +75,7 @@ class VaultPerformanceAndRegressionTest {
         val csv = """ "NAME" , "USER ID" , "PASSWORD" , "WEB ADDRESS" , "EXTRA"
 "Work Email","employee@company.com","EmpPass!2024","https://mail.company.com","Exchange Server"
 """
-        val records = BlackBerryCsvParser.parseCsv(csv)
+        val records = VaultCsvParser.parseCsv(csv)
         assertEquals(1, records.size)
         val r = records[0]
         assertEquals("Work Email", r.title)
@@ -93,7 +93,7 @@ class VaultPerformanceAndRegressionTest {
             {"cft":28675,"chk_list":{"chk_label":"Notify Users","chk_checked":false,"chk_order":2}}
         ]}"""
         val csv = """"","","","","Release Checklist","list","0","${cfJson.replace("\"", "\"\"")}",1715000000,"uid-rel","","","","","1715000000","0","0","1"\n"""
-        val records = BlackBerryCsvParser.parseCsv(csv)
+        val records = VaultCsvParser.parseCsv(csv)
         assertEquals(1, records.size)
         val r = records[0]
         assertEquals(RecordType.LIST, r.type)
@@ -127,7 +127,7 @@ class VaultPerformanceAndRegressionTest {
         assertNotNull(key)
 
         // Test AES-256-GCM encryption & decryption
-        val plainText = "Secret BlackBerry Data 12345"
+        val plainText = "Secret Vault Data 12345"
         val iv = ByteArray(12).also { secureRandom.nextBytes(it) }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, iv))

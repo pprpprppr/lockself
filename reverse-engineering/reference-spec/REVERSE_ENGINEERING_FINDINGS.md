@@ -1,14 +1,14 @@
-# BlackBerry Password Keeper — Reverse Engineering Master Findings Report
+# Legacy Password Keeper — Reverse Engineering Master Findings Report
 
 ## 1. Executive Summary
 
-This report establishes the complete reverse engineering analysis of the official **BlackBerry Password Keeper APK** (`com.blackberry.passwordkeeper` v2.2643.6, build 142825012) using the `morluto/rea` reverse engineering framework, JADX decompiler, AAPT binary inspector, and Android SDK tools.
+This report establishes the complete reverse engineering analysis of the official **Legacy Password Keeper APK** (`com.legacy.passwordkeeper` v2.2643.6, build 142825012) using the `morluto/rea` reverse engineering framework, JADX decompiler, AAPT binary inspector, and Android SDK tools.
 
 The application binary was verified in place without modification:
 - **Location**: `/home/deb/locksafe/Password Keeper.apk` [DIRECTLY OBSERVED]
 - **File Size**: `25,059,775` bytes [DIRECTLY OBSERVED]
 - **SHA-256 Digest**: `24e6b63c9efb4abb9e711c624647a6b517be5df3b6294335c1e5585d0c3a4258` [DIRECTLY OBSERVED]
-- **Certificate**: Signed by `CN=BlackBerry Limited` with SHA-256 `2C:57:98:5A:7B:46:76:56:17:A0:29:CC:6A:FA:E8:61:B0:E5:EA:AC:3F:9C:AA:0B:29:F4:1C:49:EB:AF:37:8B` [STATICALLY CONFIRMED]
+- **Certificate**: Signed by `CN=Legacy Vault Limited` with SHA-256 `2C:57:98:5A:7B:46:76:56:17:A0:29:CC:6A:FA:E8:61:B0:E5:EA:AC:3F:9C:AA:0B:29:F4:1C:49:EB:AF:37:8B` [STATICALLY CONFIRMED]
 
 ---
 
@@ -27,7 +27,7 @@ The application binary was verified in place without modification:
 | 9 | **Clipboard** | Clipboard writes tagged as `"bb.pk"`; auto-cleared upon timer expiry (30s to 15m, 10m default) or vault locking. | `PKApplication.java:596`, `pref_copied_text.xml` | **STATICALLY CONFIRMED** | Verified `OnPrimaryClipChangedListener` and `ClipData` clearing mechanisms. |
 | 10 | **Import/Export** | 18-column bidirectional CSV format with custom fields serialized as embedded JSON array in column 7. | `Q0.a.n(P0.m)`, `Q0.b.m(String)` | **STATICALLY CONFIRMED** | Column headers and JSON parsing state machine fully analyzed. |
 | 11 | **UI Styling** | High-density card layout with signature 5dp left vertical accent strips: CrimsonRed (`#D12B58`) for Passwords, Cyan (`#00B0D4`) for Notes, EmeraldGreen (`#46A66C`) for Checklists. | `res/values/colors.xml`, `view_record_details.xml` | **STATICALLY CONFIRMED** | Color hex values and layout dimension attributes verified from compiled resources. |
-| 12 | **Telemetry/Ads** | Inclusion of Google AdMob advertising SDK (`MobileAdsInitProvider`) and BlackBerry DDT telemetry (`SEND_TELEMETRY_EVENTS`). | `AndroidManifest.xml:45` | **STATICALLY CONFIRMED** | Identified external SDK dependencies; documented for removal in LockSelf. |
+| 12 | **Telemetry/Ads** | Inclusion of Google AdMob advertising SDK (`MobileAdsInitProvider`) and Legacy Vault DDT telemetry (`SEND_TELEMETRY_EVENTS`). | `AndroidManifest.xml:45` | **STATICALLY CONFIRMED** | Identified external SDK dependencies; documented for removal in LockSelf. |
 
 ---
 

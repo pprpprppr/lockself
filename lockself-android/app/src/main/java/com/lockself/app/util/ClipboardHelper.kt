@@ -24,7 +24,7 @@ class ClipboardHelper(private val context: Context, private val preferences: App
 
         cancelPendingClear()
 
-        val clip = ClipData.newPlainText(label.ifEmpty { "bb.pk" }, text)
+        val clip = ClipData.newPlainText(label.ifEmpty { "lockself" }, text)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             clip.description.extras = PersistableBundle().apply {
                 putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)

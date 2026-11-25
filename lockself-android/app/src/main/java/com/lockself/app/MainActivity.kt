@@ -78,8 +78,19 @@ class MainActivity : FragmentActivity() {
             if (app.preferences.lockOnMinimize || (timeoutSeconds > 0 && elapsedSeconds >= timeoutSeconds)) {
                 app.cryptoManager.lockVault()
                 app.clipboardHelper.onVaultLocked()
-                currentNavController?.navigate(NavRoute.Lock.route) {
-                    popUpTo(0) { inclusive = true }
+                currentNavController?.let { nav ->
+                    runCatching {
+                        nav.navigate(NavRoute.Lock.route) {
+                            popUpTo(nav.graph.id) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }.onFailure {
+                        runCatching {
+                            nav.navigate(NavRoute.Lock.route) {
+                                launchSingleTop = true
+                            }
+                        }
+                    }
                 }
             }
         }

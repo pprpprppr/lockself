@@ -94,7 +94,7 @@ fun VaultMainScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                // BlackBerry Password Keeper Navigation Drawer Header
+                // Navigation Drawer Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -122,7 +122,7 @@ fun VaultMainScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Navigation Drawer Items with numeric badges (BlackBerry NavigationDrawerFragment)
+                // Navigation Drawer Items with numeric badges
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Folder, contentDescription = "All Records") },
                     label = { Text("All Records") },

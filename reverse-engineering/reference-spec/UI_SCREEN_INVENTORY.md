@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — UI Screen Inventory Report
+# Legacy Password Keeper — UI Screen Inventory Report
 
 ## 1. Screen-by-Screen Inventory
 

@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — Feature Behavior Analysis Report
+# Legacy Password Keeper — Feature Behavior Analysis Report
 
 ## 1. Feature-by-Feature Technical Breakdown
 
@@ -61,5 +61,5 @@
   - App locked: Clears clipboard immediately if `pref_clear_clipboard_on_lock` is true. [STATICALLY CONFIRMED via `PKApplication.java`]
 
 ### K. Backup and Restore
-- **BlackBerry CSV Format**: 18 standard columns; custom fields encoded as JSON in column 7.
+- **Legacy Vault CSV Format**: 18 standard columns; custom fields encoded as JSON in column 7.
 - **Import Engine**: Handles quoted strings, commas within quotes, multiline values, and legacy UNIX timestamp formats. [STATICALLY CONFIRMED via `Q0/b.java`]

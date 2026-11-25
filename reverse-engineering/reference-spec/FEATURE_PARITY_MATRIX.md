@@ -1,8 +1,8 @@
-# BlackBerry Password Keeper vs LockSelf — Feature Parity Matrix
+# Legacy Password Keeper vs LockSelf — Feature Parity Matrix
 
 ## 1. Comprehensive Parity & Architecture Comparison
 
-| Feature Category | Original BlackBerry Keeper (`v2.2643.6`) | LockSelf Android Reconstruction | Parity Status | Technical Implementation Notes | Evidence Classification |
+| Feature Category | Original Legacy Vault Keeper (`v2.2643.6`) | LockSelf Android Reconstruction | Parity Status | Technical Implementation Notes | Evidence Classification |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Password Records** | Username, password, website, notes, custom fields (`P0.m`, `P0.c`) | Title, username, encrypted password, URL, notes, custom fields (`RecordEntity`, `RecordFieldEntity`) | **FULL PARITY** | Dynamic subtitle fallback (`user • site`, `user`, `site`, `••••••••`) preserved exactly. | STATICALLY CONFIRMED |
 | **Notes Records** | Freeform multiline encrypted notes (`RecordType.NOTE`) | Dedicated Note type with rich viewing and editing | **FULL PARITY** | Rendered with distinct Cyan accent strip (`#00B0D4`). | STATICALLY CONFIRMED |
@@ -14,8 +14,8 @@
 | **Biometric Auth** | Legacy `FingerprintManager` with RSA-OAEP KeyStore wrapping (`J0.c`) | Modern AndroidX `BiometricPrompt` with AES-256-GCM Keystore master wrapping | **ENHANCED & HARDENED** | Modern biometric prompt, invalidation on new biometric enrollment, 15-login reminder preserved. | STATICALLY CONFIRMED |
 | **Auto-Lock Timeout** | Inactivity timer (30s, 1m, 2m, 5m, 10m, 15m, 30m, 1h, Never); lock on minimize; screen off | Lifecycle-aware timeout tracking (same options) | **FULL PARITY** | Managed via Android lifecycle callbacks and system alarms; zero CPU drain when idle. | STATICALLY CONFIRMED |
 | **Clipboard Auto-Wipe** | Background timer (30s, 1m, 2m, 5m, 10m, 15m, Never); clear on lock; `"bb.pk"` tag | In-memory countdown with auto-wipe on timeout and lock | **FULL PARITY** | Overwrites clipboard with empty clip data upon expiry; respects Android 13+ clipboard privacy notifications. | STATICALLY CONFIRMED |
-| **Backup & Restore** | 18-column bidirectional CSV with JSON custom fields (`Q0.a`, `Q0.b`) | 18-column bidirectional CSV parser/exporter + Encrypted JSON vault backup | **FULL PARITY** | Fully compatible with historical BlackBerry desktop and mobile CSV backups. | STATICALLY CONFIRMED |
+| **Backup & Restore** | 18-column bidirectional CSV with JSON custom fields (`Q0.a`, `Q0.b`) | 18-column bidirectional CSV parser/exporter + Encrypted JSON vault backup | **FULL PARITY** | Fully compatible with historical Legacy Vault desktop and mobile CSV backups. | STATICALLY CONFIRMED |
 | **Visual Design** | Material 1/2 with colored category badges and drawer items | Modern Material 3 with signature 5dp category accent strips and exact color codes | **FAITHFUL MATCH** | Clean, high-density layout honoring original visual hierarchy. | STATICALLY CONFIRMED |
 | **Zero Network Requirement** | Requested `INTERNET` and `ACCESS_NETWORK_STATE` permissions | Completely offline; zero network permissions in manifest | **HARDENED** | Immune to remote network exfiltration vectors. | STATICALLY CONFIRMED |
 | **Google AdMob SDK** | Included AdMob ads, ad ID permissions, and ad activity | **COMPLETELY REMOVED** | **EXCLUDED (BY DESIGN)** | Zero advertising, tracking, or commercial SDKs. | STATICALLY CONFIRMED |
-| **BlackBerry DDT Telemetry** | Transmitted telemetry events (`SEND_TELEMETRY_EVENTS`) | **COMPLETELY REMOVED** | **EXCLUDED (BY DESIGN)** | Zero analytics or external event reporting. | STATICALLY CONFIRMED |
+| **Legacy Vault DDT Telemetry** | Transmitted telemetry events (`SEND_TELEMETRY_EVENTS`) | **COMPLETELY REMOVED** | **EXCLUDED (BY DESIGN)** | Zero analytics or external event reporting. | STATICALLY CONFIRMED |

@@ -2,7 +2,7 @@ package com.lockself.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Exact BlackBerry Password Keeper color palette extracted from colors.xml
+// Signature color palette extracted from design tokens
 val BrandBlue = Color(0xFF025FCE)
 val BrandBlueDark = Color(0xFF014DC2)
 val BrandBlueLight = Color(0xFFE1ECF9)

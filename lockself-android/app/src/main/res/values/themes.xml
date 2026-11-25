@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.LockSelf" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.LockSelf" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:statusBarColor">#025FCE</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

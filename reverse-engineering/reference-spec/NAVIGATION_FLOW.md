@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — Navigation Flow Report
+# Legacy Password Keeper — Navigation Flow Report
 
 ## 1. Primary Navigation State Machine
 

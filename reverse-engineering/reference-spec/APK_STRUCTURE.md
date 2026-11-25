@@ -1,4 +1,4 @@
-# BlackBerry Password Keeper — APK Structure Report
+# Legacy Password Keeper — APK Structure Report
 
 ## 1. Top-Level Binary Composition
 
@@ -37,7 +37,7 @@ The application contains precompiled native shared libraries strictly for SQLCip
 - **DEX Format Version**: `039` (standard Android Pie+ DEX). [STATICALLY CONFIRMED]
 - **Class Definition Count**: `7,362` compiled classes. [STATICALLY CONFIRMED via JADX progress logs]
 - **Method References**: Well within the single DEX 64K limit (multidex disabled/unneeded for final release). [STATICALLY CONFIRMED]
-- **Obfuscation**: Processed with ProGuard/R8. BlackBerry proprietary internal packages are obfuscated to single/dual-letter package paths (`P0/`, `I0/`, `Q0/`, `D0/`, `H0/`, `J0/`, `M0/`, `N0/`, `LN0/`), while public activities, services, components, and AndroidX libraries remain identifiable. [STATICALLY CONFIRMED]
+- **Obfuscation**: Processed with ProGuard/R8. Legacy Vault proprietary internal packages are obfuscated to single/dual-letter package paths (`P0/`, `I0/`, `Q0/`, `D0/`, `H0/`, `J0/`, `M0/`, `N0/`, `LN0/`), while public activities, services, components, and AndroidX libraries remain identifiable. [STATICALLY CONFIRMED]
 
 ---
 

@@ -1,8 +1,8 @@
-# MASTER PROMPT: BLACKBERRY PASSWORD KEEPER — REA REVERSE ENGINEERING & HIGH-FIDELITY RECONSTRUCTION
+# MASTER PROMPT: Legacy Password Keeper — REA REVERSE ENGINEERING & HIGH-FIDELITY RECONSTRUCTION
 
 Act as a principal Android reverse engineer, Kotlin architect, Jetpack Compose expert, application security engineer, UI/UX reconstruction specialist, cryptography engineer, and software testing specialist.
 
-Your mission is to perform a comprehensive reverse-engineering investigation of the original **BlackBerry Password Keeper APK** using the installed REA (Reverse Engineer Anything) tool and reconstruct its functionality and user experience as a native Android application named **LockSelf**.
+Your mission is to perform a comprehensive reverse-engineering investigation of the original **Legacy Password Keeper APK** using the installed REA (Reverse Engineer Anything) tool and reconstruct its functionality and user experience as a native Android application named **LockSelf**.
 
 The objective is to recreate the original application's screens, navigation, UI structure, controls, settings, record types, interactions, and features as faithfully as the available evidence permits.
 
@@ -13,7 +13,7 @@ This is not a request to create another generic password manager. The objective 
 # 1. PROJECT LOCATIONS
 
 Target application:
-The existing BlackBerry Password Keeper APK located somewhere in the current workspace or its subdirectories.
+The existing Legacy Password Keeper APK located somewhere in the current workspace or its subdirectories.
 
 Main project:
 
@@ -24,7 +24,7 @@ Use the existing project as the destination for the reconstructed application.
 Before proceeding:
 
 1. Search the current workspace recursively for APK files.
-2. Identify the APK whose package corresponds to BlackBerry Password Keeper.
+2. Identify the APK whose package corresponds to Legacy Password Keeper.
 3. Verify its application name, package name, and version.
 4. Record its absolute path, file size, and SHA-256 checksum.
 5. If multiple matching APKs exist, identify the correct version using package metadata.
@@ -33,8 +33,8 @@ Before proceeding:
 
 Expected application identity to verify:
 
-- Application: BlackBerry Password Keeper
-- Package: `com.blackberry.passwordkeeper`
+- Application: Legacy Password Keeper
+- Package: `com.legacy.passwordkeeper`
 - Version: `2.2643.6` (verify against the actual APK)
 
 Do not assume these details without inspecting the binary.
@@ -120,7 +120,7 @@ If runtime analysis requires a license, authentication, unavailable hardware, or
 
 # 3. RECONSTRUCT THE ORIGINAL UI — HIGHEST PRIORITY
 
-I want the reconstructed application to resemble the actual BlackBerry Password Keeper experience, not a newly invented password manager interface.
+I want the reconstructed application to resemble the actual Legacy Password Keeper experience, not a newly invented password manager interface.
 
 Analyze and document the original visual design before implementing the replacement.
 
@@ -201,7 +201,7 @@ Match the original application's:
 
 Use screenshots and runtime observations as visual references.
 
-Build the new implementation with independently written code and recreated UI components. Do not transplant proprietary compiled code, copy protected artwork or logos, or represent LockSelf as an official BlackBerry product. Recreate the visual experience using original assets and appropriately licensed resources.
+Build the new implementation with independently written code and recreated UI components. Do not transplant proprietary compiled code, copy protected artwork or logos, or represent LockSelf as an official Legacy Vault product. Recreate the visual experience using original assets and appropriately licensed resources.
 
 The final result should be visually faithful to the observed application while maintaining LockSelf's independent identity.
 
@@ -448,7 +448,7 @@ Do not directly reuse proprietary database implementation code.
 
 Store all analysis artifacts and reports in:
 
-`/home/deb/lockself/reverse-engineering/blackberry-password-keeper/`
+`/home/deb/lockself/reverse-engineering/Legacy Vault-password-keeper/`
 
 Create:
 

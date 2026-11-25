@@ -17,7 +17,7 @@ object PasswordStrengthMeter {
     )
 
     private val FORBIDDEN_PASSWORDS = setOf(
-        "password", "123456", "12345678", "qwerty", "admin", "welcome", "blackberry"
+        "password", "123456", "12345678", "qwerty", "admin", "welcome", "password123"
     )
 
     fun evaluate(password: String): StrengthResult {

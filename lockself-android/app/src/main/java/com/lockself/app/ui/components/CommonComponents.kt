@@ -49,7 +49,7 @@ import com.lockself.app.ui.theme.StrengthYellow
 import com.lockself.app.util.PasswordStrengthMeter
 
 /**
- * BlackBerry Password Keeper Continuous Spectrum Gradient Strength Meter with Sliding Notch
+ * Continuous Spectrum Gradient Strength Meter with Sliding Notch
  * Implements the exact visual behavior of `PasswordSecurityField` (res/layout/password_field.xml)
  */
 @Composable
@@ -116,7 +116,7 @@ fun ContinuousStrengthMeter(
 }
 
 /**
- * BlackBerry Password Keeper Signature Record Card
+ * Signature Record Card
  * Features the signature 5dp vertical accent strip:
  * - CrimsonRed (#D12B58) for Passwords
  * - Cyan (#00B0D4) for Notes
