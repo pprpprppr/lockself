@@ -28,11 +28,6 @@ captures/
 output-metadata.json
 baselineProfiles/
 
-# Proprietary target APK & reverse engineering dumps
-Password Keeper.apk
-decompressed_apk/
-apk_resources.txt
-
 # OS & Temp Files
 .DS_Store
 Thumbs.db
@@ -41,10 +36,3 @@ Thumbs.db
 *.log
 *.tmp
 crashlytics-build.properties
-
-# Web / Node
-node_modules/
-dist/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
